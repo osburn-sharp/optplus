@@ -1,0 +1,78 @@
+#!/usr/bin/env ruby18
+#
+# Author:: Robert Sharp
+# Copyright:: Copyright (c) 2013 Robert Sharp
+# License:: Open Software Licence v3.0
+#
+# This software is licensed for use under the Open Software Licence v. 3.0
+# The terms of this licence can be found at http://www.opensource.org/licenses/osl-3.0.php
+# and in the file copyright.txt. Under the terms of this licence, all derivative works
+# must themselves be licensed under the Open Software Licence v. 3.0
+# 
+#
+
+
+require 'rubygems'
+require 'thor'
+require 'colored'
+
+require 'optplus'
+
+# thor-based command line interpreter for the service. Define additional commands etc
+# as required.
+
+class OptplusCLI < Thor
+
+  class_option :config, :aliases=>'-c', :desc=>'use the given config file'
+
+  default_task :usage
+  
+  desc "usage", "You are looking at it"
+  def usage
+    puts "What does this do?"
+    puts ""
+    help
+    puts ""
+    puts "See Also:"
+    puts "  README.md: (see optplus readme above)"
+    puts "  GitHub: https://github.com/osburn-sharp/optplus"
+    puts "  RubyDoc: http://rubydoc.info/github/osburn-sharp/optplus/frames"
+  end
+  
+  desc "readme", "display the readme file for the gem"
+  def readme
+    gem_spec = Gem::Specification.find_by_name('optplus')
+    readme_path = File.join(gem_spec.gem_dir, 'README.md')
+    
+    if FileTest.exists?(readme_path) then
+    
+      File.open(readme_path) do |rfile|
+        rfile.each_line do |rline|
+          puts rline
+        end
+      end
+      
+    else
+      puts "There is no readme available".red.bold
+    end
+    
+  rescue
+    puts "There is no readme available".red.bold
+  end
+  
+  # put your own commands here
+  desc "list", "list things that might be useful"
+  def list
+  
+    client_opts = {:local=>false}
+    client_opts[:config_file] = options[:config] #if options.has_key?(:config)
+    JerbilService::Client.connect(Optplus, client_opts) do |service|
+      skey = service.service_key
+      # do what you need to here
+    end
+  
+  end
+  
+end
+
+OptplusCLI.start

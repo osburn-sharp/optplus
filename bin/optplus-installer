@@ -1,0 +1,32 @@
+#!/usr/bin/env ruby18
+#
+# @markup ruby
+# @title Installation Script
+#
+# = Optplus Installation Script
+#
+# == Uses Jeni to install Optplus Files
+#
+#
+# Author:: Robert Sharp
+# Copyright:: Copyright (c) 2013 Robert Sharp
+# License:: Open Software Licence v3.0
+#
+# This software is licensed for use under the Open Software Licence v. 3.0
+# The terms of this licence can be found at http://www.opensource.org/licenses/osl-3.0.php
+# and in the file copyright.txt. Under the terms of this licence, all derivative works
+# must themselves be licensed under the Open Software Licence v. 3.0
+# 
+#
+
+
+require 'rubygems' # jeni uses it anyway to find the jerbil gem so why not use it here?
+require 'jeni'
+
+
+Jeni::Installer.new_from_gem('optplus') do |jeni|
+  jeni.optparse(ARGV)
+  
+  # add custom installation actions
+  
+end.run!

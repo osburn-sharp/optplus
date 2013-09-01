@@ -1,0 +1,3 @@
+Wraps Optparser into a class to enable thor-like scripting with a few meta-methods
+and a built-in command or action dispatcher. Its much smaller than Thor and aimed
+at saving time when scripting with Optparser.
