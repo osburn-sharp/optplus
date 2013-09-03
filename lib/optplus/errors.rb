@@ -22,6 +22,7 @@ module Optplus
   # add specific errors as required
   
   # description
-  class MyError < OptplusError; end
+  class ParseError < OptplusError; end
+  class ExitOnError < OptplusError; end
 
 end

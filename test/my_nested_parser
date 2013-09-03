@@ -13,9 +13,10 @@
 
 
 require 'optplus'
+require 'optplus/nested'
 
 
-class MyParser < OptPlus
+class MyParser < Optplus::Parser
   
   usage "[options] action"
     
@@ -85,6 +86,19 @@ class MyParser < OptPlus
     puts "Baaaa"
   end
   
+  class Question < Optplus::NestedParser
+    
+    describe :work, "Ask about work-related things"
+    def work
+      puts "I am unemployed"
+    end
+    
+  end
+  
+  nest_parser :question, Question, "Interrogate in more detail"
+  
 end
+
+
 
 MyParser.run!
