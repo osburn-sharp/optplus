@@ -2,6 +2,10 @@
 # @title Change History
 
 == History
+[optplus-0.0.2 03-Sep-2013]
+
+  Include Nested Parser
+
 [optplus-0.0.1 01-Sep-2013]
 
   Initial release

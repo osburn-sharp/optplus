@@ -88,6 +88,10 @@ class MyParser < Optplus::Parser
   
   class Question < Optplus::NestedParser
     
+    usage "question aspect"
+    
+    description "ask a question about a particular aspect"
+    
     describe :work, "Ask about work-related things"
     def work
       puts "I am unemployed"

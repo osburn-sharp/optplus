@@ -23,110 +23,123 @@ module Optplus
   #
   class Parser
     
-    # define the usage banner, less "Usage: <prog_name>"!
-    #
-    # For example: usage "[options] [actions] [filename]" becomes:
-    # "Usage: progname [options] [actions] [filename]"
-    #
-    # @param [String] txt that is the banner
-    def self.usage(txt)
-      @@_banner = txt
-    end
+    class << self
     
-    # Adds a description to the help/usage
-    #
-    # This takes any number of string arguments and displays them as separate lines.
-    #
-    # @param [Array] lines of description text as variable arguments
-    def self.description(*lines)
-      @@_description = lines
-    end
-    
-    # Add a brief description for a specific action
-    #
-    # Add a little Thor-like description before each method. Unlike Thor,
-    # you will not get told off if there is no corresponding method but
-    # its probably a good idea if you add one.
-    #
-    # @param [Symbol] action to be described
-    # @param [String] description of the action
-    def self.describe(action, description)
-      @@_actions ||= Array.new
-      @@_actions << action.to_s
-      @@_descriptions ||= Hash.new
-      @@_descriptions[action] = description
-    end
-    
-    # add a block of helpful text for an action
-    #
-    # Adds all of the arguments as lines to display when you use the help
-    # switch with the given argument, instead of the general help.
-    # Note that optplus does not allow options specific to actions so this is
-    # just text.
-    #
-    # @param [String] action to describe with helpful text
-    # @param [Array] lines of helpful text to display as arguments
-    def self.help(action, *lines)
-      @@_help ||= Hash.new
-      @@_help[action] = lines
-    end
-    
-    
-    # Do the option parsing and actioning stuff
-    #
-    # If you write an optplus class, run the script and nothing happens it is because
-    # you forgot to add MyClass.run! Simple and easily done. 
-    #
-    def self.run!
+      # define the usage banner, less "Usage: <prog_name>"!
+      #
+      # For example: usage "[options] [actions] [filename]" becomes:
+      # "Usage: progname [options] [actions] [filename]"
+      #
+      # @param [String] txt that is the banner
+      def usage(txt)
+        @_banner = txt
+      end
       
-      me = self.new
+      attr_reader :_banner
       
-      if me._needs_help? then
-        me._help_me
-      elsif me._args.length > 0 then
-        action = me.next_argument
-        alup = @@_actions.abbrev(action)
-        if alup.has_key?(action) then
-          begin
-            me.send(alup[action].to_sym)
-            
-            # trap a deliberate exit and tidy up
-            # if required
-          rescue ExitOnError
-            me.after_actions if me.respond_to?(:after_actions)
-            exit 1
+      # Adds a description to the help/usage
+      #
+      # This takes any number of string arguments and displays them as separate lines.
+      #
+      # @param [Array] lines of description text as variable arguments
+      def description(*lines)
+        @_description = lines
+      end
+      
+      attr_reader :_description
+      
+      # Add a brief description for a specific action
+      #
+      # Add a little Thor-like description before each method. Unlike Thor,
+      # you will not get told off if there is no corresponding method but
+      # its probably a good idea if you add one.
+      #
+      # @param [Symbol] action to be described
+      # @param [String] description of the action
+      def describe(action, description)
+        @_actions ||= Array.new
+        @_actions << action.to_s
+        @_descriptions ||= Hash.new
+        @_descriptions[action] = description
+      end
+      
+      attr_reader :_actions
+      attr_reader :_descriptions
+      
+      # add a block of helpful text for an action
+      #
+      # Adds all of the arguments as lines to display when you use the help
+      # switch with the given argument, instead of the general help.
+      # Note that optplus does not allow options specific to actions so this is
+      # just text.
+      #
+      # @param [String] action to describe with helpful text
+      # @param [Array] lines of helpful text to display as arguments
+      def help(action, *lines)
+        @_help ||= Hash.new
+        @_help[action] = lines
+      end
+      
+      attr_accessor :_help
+      
+      # Do the option parsing and actioning stuff
+      #
+      # If you write an optplus class, run the script and nothing happens it is because
+      # you forgot to add MyClass.run! Simple and easily done. 
+      #
+      def run!
+        
+        me = self.new(self)
+        
+        if me._needs_help? then
+          me._help_me
+        elsif me._args.length > 0 then
+          action = me.next_argument
+          alup = @_actions.abbrev(action)
+          if alup.has_key?(action) then
+            begin
+              me.send(alup[action].to_sym)
+              
+              # trap a deliberate exit and tidy up
+              # if required
+            rescue ExitOnError
+              me.after_actions if me.respond_to?(:after_actions)
+              exit 1
+            end
+          else
+            puts "Sorry, What?"
+            puts ""
+            me._get_help
           end
         else
-          puts "Sorry, What?"
-          puts ""
           me._get_help
         end
-      else
-        me._get_help
+      rescue OptionParser::InvalidOption => opterr
+        puts "Error: Invalid Option".red.bold
+        puts "I do not understand the option: #{opterr.args.join}"
+      rescue OptionParser::InvalidArgument => opterr
+        puts "Error: You have entered an invalid argument to an option".red.bold
+        puts "The option in question is: #{opterr.args.join(' ')}"
+      rescue OptionParser::AmbiguousOption => opterr
+        puts "Error: You need to be clearer than that".red.bold
+        puts "I am not be sure what option you mean: #{opterr.args.join}"
+      rescue OptionParser::AmbiguousArgument => opterr
+        puts "Error: You need to be clearer than that".red.bold
+        puts "I am not sure what argument you mean: #{opterr.args.join(' ')}"
+      rescue OptionParser::MissingArgument => opterr
+        puts "Error: You need to provide an argument with that option".red.bold
+        puts "This is the option in question: #{opterr.args.join}"
+      rescue OptionParser::ParseError => opterr
+        puts "Error: the command line is not as expected".red.bold
+        puts opterr.to_s
       end
-    rescue OptionParser::InvalidOption => opterr
-      puts "Error: Invalid Option".red.bold
-      puts "I do not understand the option: #{opterr.args.join}"
-    rescue OptionParser::InvalidArgument => opterr
-      puts "Error: You have entered an invalid argument to an option".red.bold
-      puts "The option in question is: #{opterr.args.join(' ')}"
-    rescue OptionParser::AmbiguousOption => opterr
-      puts "Error: You need to be clearer than that".red.bold
-      puts "I am not be sure what option you mean: #{opterr.args.join}"
-    rescue OptionParser::AmbiguousArgument => opterr
-      puts "Error: You need to be clearer than that".red.bold
-      puts "I am not sure what argument you mean: #{opterr.args.join(' ')}"
-    rescue OptionParser::MissingArgument => opterr
-      puts "Error: You need to provide an argument with that option".red.bold
-      puts "This is the option in question: #{opterr.args.join}"
-    rescue OptionParser::ParseError => opterr
-      puts "Error: the command line is not as expected".red.bold
-      puts opterr.to_s
-    end
+      
+    end # class << self
     
     instance_eval do
       def nest_parser(name, klass, description)
         self.describe(name, description)
+        self._help[name] = klass
         class_eval %Q{
           def #{name}
             #{klass}.run!(self)
@@ -135,9 +148,10 @@ module Optplus
       end
     end
     
-    def initialize
+    def initialize(klass)
       
-      @@_help ||= Hash.new
+      @klass = klass
+      @klass._help ||= Hash.new
       @_help = false
       @options = Hash.new
       
@@ -145,18 +159,18 @@ module Optplus
       
       begin
         @_optparse = OptionParser.new do |opts|
-          
-          opts.banner = "Usage: #{opts.program_name} #{@@_banner}"
+          @program_name = opts.program_name
+          opts.banner = "Usage: #{@program_name} #{@klass._banner}"
           opts.separator ""
           
-          @@_description.each do |dline|
+          @klass._description.each do |dline|
             opts.separator "  " + dline
           end
           
           opts.separator ""
           opts.separator "Actions:"
           opts.separator ""
-          @@_descriptions.each do |key, value|
+          @klass._descriptions.each do |key, value|
             opts.separator "  #{key} - #{value}"
           end
           
@@ -164,7 +178,7 @@ module Optplus
           opts.separator "Options:"
           opts.separator ""
           
-          if @@_help.length > 0 then
+          if @klass._help.length > 0 then
             help_string = 'use with an action for further help'
           else
             help_string = 'you are looking at it'
@@ -187,6 +201,8 @@ module Optplus
       self.before_actions if self.respond_to?(:before_actions)
       
     end
+    
+    attr_reader :program_name
     
     # add a switch for debug mode
     def debug_option(opts, switch='-D')
@@ -251,18 +267,24 @@ module Optplus
     
     def _help_me
       if _args.length > 0 then
-        action = next_argument.to_sym
-        if @@_help.has_key?(action) then
+        action = next_argument
+        alup = @klass._actions.abbrev(action)
+        action = alup[action].to_sym if alup.has_key?(action)
+        if @klass._help.has_key?(action) then
           # valid help so use it
-          puts "Help for #{action}"
-          puts ""
-          @@_help[action].each do |aline|
-            puts aline
+          if @klass._help[action].kind_of?(Array) then
+            puts "Help for #{action}"
+            puts ""
+            @klass._help[action].each do |aline|
+              puts aline
+            end
+            puts ""
+          else
+            @klass._help[action]._help_me
           end
-          puts ""
           return
-        elsif @@_actions.include?(action)
-          puts "Sorry, there is no specific help for this action".yellow
+        elsif @klass._actions.include?(action)
+          puts "Sorry, there is no specific help for action: #{action}".yellow
           puts ""
           _get_help
           return

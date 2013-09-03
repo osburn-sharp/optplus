@@ -21,13 +21,35 @@ module Optplus
 
   class NestedParser < Optplus::Parser
     
-    def self.run!(parent)
-      @@_parent = parent
-      super()
-    end
+    class << self
+      def run!(parent)
+        @_parent = parent
+        super()
+      end
+      
+      attr_reader :_parent
     
-    def initialize
-      @_parent = @@_parent
+      def _help_me
+        prog_name = File.basename($0, File.extname($0))
+        puts "Usage: #{prog_name} #{self._banner}"
+        puts ""
+        self._description.each do |line|
+          puts line
+        end
+        puts ""
+        self._descriptions.each_pair do |action, description|
+          puts "  #{action} - #{description}"
+        end
+        puts ""
+        puts "For full details of options etc:"
+        puts "  #{prog_name} -h"
+      end
+      
+    end # class << self
+    
+    def initialize(klass)
+      @klass = klass
+      @_parent = @klass._parent
       self.before_all if self.respond_to?(:before_all)
       self.before_actions if self.respond_to?(:before_actions)
     end
@@ -56,9 +78,11 @@ module Optplus
       _parent.option?(key)
     end
     
-    def _get_help
-      _parent._get_help
-    end
+    # def _get_help
+    #   _parent._get_help
+    # end
+    
+
     
   end
   

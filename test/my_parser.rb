@@ -15,7 +15,7 @@
 require 'optplus'
 
 
-class MyParser < OptPlus
+class MyParser < Optplus::Parser
   
   usage "[options] action"
     
