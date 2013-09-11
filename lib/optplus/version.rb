@@ -1,13 +1,13 @@
 # Created by Jevoom
 #
-# 03-Sep-2013
-#   Fix Gemfile to remove unwanted and cyclic dependencies
+# 11-Sep-2013
+#   Add a couple of next_argument variants for defaults and exceptions
 
 module Optplus
-  # version set to 0.0.3
-  Version = '0.0.3'
-  # date set to 03-Sep-2013
-  Version_Date = '03-Sep-2013'
-  #ident string set to: optplus-0.0.3 03-Sep-2013
-  Ident = 'optplus-0.0.3 03-Sep-2013'
+  # version set to 0.0.4
+  Version = '0.0.4'
+  # date set to 11-Sep-2013
+  Version_Date = '11-Sep-2013'
+  #ident string set to: optplus-0.0.4 11-Sep-2013
+  Ident = 'optplus-0.0.4 11-Sep-2013'
 end

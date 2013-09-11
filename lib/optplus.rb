@@ -227,6 +227,20 @@ module Optplus
       @_args.shift
     end
     
+    # return the next argument or the given default
+    #
+    # @param [Object] default to return if no argument
+    def next_argument_or(default)
+      next_argument || default
+    end
+    
+    #return the next argument or raise ArgumentError with the given message
+    #
+    # @param [String] msg to attach to exception
+    def next_argument_or_error(msg)
+      next_argument || raise(ArgumentError, msg)
+    end
+    
     # return all of the remaining args, or an empty array
     def all_arguments
       args = @_args.dup
