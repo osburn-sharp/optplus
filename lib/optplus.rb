@@ -132,7 +132,7 @@ module Optplus
       rescue OptionParser::ParseError => opterr
         puts "Error: the command line is not as expected".red.bold
         puts opterr.to_s
-      rescue OptPlus::ParseError => err
+      rescue Optplus::ParseError => err
         puts "Error: #{err.message}".red.bold
       end
       
