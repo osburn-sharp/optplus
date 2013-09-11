@@ -2,6 +2,10 @@
 # @title Change History
 
 == History
+[optplus-0.0.5 11-Sep-2013]
+
+  Add a general error handler to the run! method to make it easier to handle argument errors
+
 [optplus-0.0.4 11-Sep-2013]
 
   Add a couple of next_argument variants for defaults and exceptions

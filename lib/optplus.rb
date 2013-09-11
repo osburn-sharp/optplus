@@ -132,6 +132,8 @@ module Optplus
       rescue OptionParser::ParseError => opterr
         puts "Error: the command line is not as expected".red.bold
         puts opterr.to_s
+      rescue OptPlus::ParseError => err
+        puts "Error: #{err.message}".red.bold
       end
       
     end # class << self
@@ -238,7 +240,7 @@ module Optplus
     #
     # @param [String] msg to attach to exception
     def next_argument_or_error(msg)
-      next_argument || raise(ArgumentError, msg)
+      next_argument || raise(Optplus::ParseError, msg)
     end
     
     # return all of the remaining args, or an empty array
