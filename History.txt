@@ -2,6 +2,10 @@
 # @title Change History
 
 == History
+[optplus-0.0.7 11-Sep-2013]
+
+  Add flag to actions that have their own help
+
 [optplus-0.0.6 11-Sep-2013]
 
   Fix typo in hasty release

@@ -172,10 +172,19 @@ module Optplus
           opts.separator ""
           opts.separator "Actions:"
           opts.separator ""
+          flags = 0
           @klass._descriptions.each do |key, value|
-            opts.separator "  #{key} - #{value}"
+            flag = @klass._help.has_key?(key.to_sym) ? '(-h)' : ''
+            flags += 1 unless flag == ''
+            opts.separator "  #{key} - #{value} #{flag}"
           end
           
+          if flags > 0 then
+            opts.separator ""
+            opts.separator "  (-h indicates actions with additional help)"
+            opts.separator ""
+          end
+            
           opts.separator ""
           opts.separator "Options:"
           opts.separator ""
