@@ -23,6 +23,9 @@ module Optplus
   
   # description
   class ParseError < OptplusError; end
+  
+  # force an exit 
+  # @note Should only be used by the exit_on_error method
   class ExitOnError < OptplusError; end
 
 end

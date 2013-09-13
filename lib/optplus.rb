@@ -35,8 +35,6 @@ module Optplus
         @_banner = txt
       end
       
-      attr_reader :_banner
-      
       # Adds a description to the help/usage
       #
       # This takes any number of string arguments and displays them as separate lines.
@@ -46,7 +44,6 @@ module Optplus
         @_description = lines
       end
       
-      attr_reader :_description
       
       # Add a brief description for a specific action
       #
@@ -63,8 +60,6 @@ module Optplus
         @_descriptions[action] = description
       end
       
-      attr_reader :_actions
-      attr_reader :_descriptions
       
       # add a block of helpful text for an action
       #
@@ -80,7 +75,19 @@ module Optplus
         @_help[action] = lines
       end
       
+      # @!visibility private
+      attr_reader :_banner
+      # @!visibility private
+      attr_reader :_description
+      # @!visibility private
+      attr_reader :_actions
+      # @!visibility private
+      attr_reader :_descriptions
+      # @!visibility private
       attr_accessor :_help
+      # end of private stuff
+      
+      # @!visibility public
       
       # Do the option parsing and actioning stuff
       #
@@ -89,55 +96,84 @@ module Optplus
       #
       def run!
         
-        me = self.new(self)
+        @_parent ||= nil
         
-        if me._needs_help? then
-          me._help_me
-        elsif me._args.length > 0 then
-          action = me.next_argument
-          alup = @_actions.abbrev(action)
-          if alup.has_key?(action) then
-            begin
-              me.send(alup[action].to_sym)
+        begin
+          me = self.new
+          
+          if me._needs_help? then
+            me._help_me
+          elsif me._args.length > 0 then
+            action = me.next_argument
+            alup = @_actions.abbrev(action)
+            if alup.has_key?(action) then
+  
+              me.before_actions if me.respond_to?(:before_actions)
               
-              # trap a deliberate exit and tidy up
-              # if required
-            rescue ExitOnError
+              begin
+                me.send(alup[action].to_sym)
+                
+                # trap a deliberate exit and tidy up
+                # if required
+              rescue Optplus::ExitOnError => err
+                puts err.message.red.bold unless err.message == ''
+                me.after_actions if me.respond_to?(:after_actions)
+                raise Optplus::ExitOnError, '' # with no message
+              end
+              
               me.after_actions if me.respond_to?(:after_actions)
-              exit 1
+              
+            else
+              puts "Sorry, What?"
+              puts ""
+              me._get_help
             end
           else
-            puts "Sorry, What?"
-            puts ""
             me._get_help
           end
-        else
-          me._get_help
+          
+          return true
+          
+        rescue OptionParser::InvalidOption => opterr
+          puts "Error: Invalid Option".red.bold
+          puts "I do not understand the option: #{opterr.args.join}"
+        rescue OptionParser::InvalidArgument => opterr
+          puts "Error: You have entered an invalid argument to an option".red.bold
+          puts "The option in question is: #{opterr.args.join(' ')}"
+        rescue OptionParser::AmbiguousOption => opterr
+          puts "Error: You need to be clearer than that".red.bold
+          puts "I am not be sure what option you mean: #{opterr.args.join}"
+        rescue OptionParser::AmbiguousArgument => opterr
+          puts "Error: You need to be clearer than that".red.bold
+          puts "I am not sure what argument you mean: #{opterr.args.join(' ')}"
+        rescue OptionParser::MissingArgument => opterr
+          puts "Error: You need to provide an argument with that option".red.bold
+          puts "This is the option in question: #{opterr.args.join}"
+        rescue OptionParser::ParseError => opterr
+          puts "Error: the command line is not as expected".red.bold
+          puts opterr.to_s
+        rescue Optplus::ParseError => err
+          puts "Error: #{err.message}".red.bold
+        rescue Optplus::ExitOnError => err
+          puts err.message.red.bold unless err.message == ''
+          raise Optplus::ExitOnError, '' unless @_parent.nil?
         end
-      rescue OptionParser::InvalidOption => opterr
-        puts "Error: Invalid Option".red.bold
-        puts "I do not understand the option: #{opterr.args.join}"
-      rescue OptionParser::InvalidArgument => opterr
-        puts "Error: You have entered an invalid argument to an option".red.bold
-        puts "The option in question is: #{opterr.args.join(' ')}"
-      rescue OptionParser::AmbiguousOption => opterr
-        puts "Error: You need to be clearer than that".red.bold
-        puts "I am not be sure what option you mean: #{opterr.args.join}"
-      rescue OptionParser::AmbiguousArgument => opterr
-        puts "Error: You need to be clearer than that".red.bold
-        puts "I am not sure what argument you mean: #{opterr.args.join(' ')}"
-      rescue OptionParser::MissingArgument => opterr
-        puts "Error: You need to provide an argument with that option".red.bold
-        puts "This is the option in question: #{opterr.args.join}"
-      rescue OptionParser::ParseError => opterr
-        puts "Error: the command line is not as expected".red.bold
-        puts opterr.to_s
-      rescue Optplus::ParseError => err
-        puts "Error: #{err.message}".red.bold
+        
+        # only rescued exceptions will reach here
+        exit 1 if @_parent.nil?
+        
       end
-      
+        
     end # class << self
     
+    # @!method self.nest_parser(name, klass, description)
+    #  nest a parser for subcommands
+    #  This will add the given name to the actions list
+    #  and then parse the next argument as a subcommand
+    #  The klass must inherit {Optplus::NestedParser}
+    #  @param [Symbol] name of action to nest
+    #  @param [Class] klass of Nested Parser
+    #  @param [String] description of action
     instance_eval do
       def nest_parser(name, klass, description)
         self.describe(name, description)
@@ -150,9 +186,19 @@ module Optplus
       end
     end
     
-    def initialize(klass)
+    # create an Optplus instance, define the options and parse the command line
+    #
+    # This method will call the following if they have been defined:
+    #
+    # * before_all - any setting up needed right at the start
+    # * options - to add options
+    # * before_actions - after options have been parsed but before actions are
+    #   implemented
+    #
+    # @param [Class] klass for internal use in the instance itself
+    def initialize
       
-      @klass = klass
+      @klass = self.class
       @klass._help ||= Hash.new
       @_help = false
       @options = Hash.new
@@ -205,35 +251,45 @@ module Optplus
       
         # trap a deliberate exit and force exit before
         # executing before_actions
-      rescue ExitOnError
+      rescue ExitOnError => err
+        puts err.message.red.bold unless err.message == ''
         exit 1
       end
       
-      self.before_actions if self.respond_to?(:before_actions)
       
     end
     
+    # provides convenient access to the name of the program
     attr_reader :program_name
     
-    # add a switch for debug mode
+    # add optparse option for debug mode
+    #
+    # @param [Optparse] opts being the optparse instance
+    # @param [String] switch being the short-form option on the command line
     def debug_option(opts, switch='-D')
       opts.on_tail(switch, '--debug', 'show debug information') do |d|
         @options[:debug] = d
       end
     end
     
-    # add a switch for verbose mode
+    # add optparse option for verbose mode
+    #
+    # @param [Optparse] opts being the optparse instance
+    # @param [String] switch being the short-form option on the command line
     def verbose_option(opts, switch='-V')
       opts.on_tail(switch, '--verbose', 'show verbose information') do |v|
         @options[:verbose] = v
       end
     end     
   
-    
+
+    # @!visibility private
     attr_reader :_args
+
     
-    # return the next argument, if there is one
-    # or nil otherwise
+    # return the next argument, if there is one or nil otherwise
+    #
+    # @return [String] being the next argument
     def next_argument
       @_args.shift
     end
@@ -241,18 +297,29 @@ module Optplus
     # return the next argument or the given default
     #
     # @param [Object] default to return if no argument
+    # @return [String] being the next argument or the default
     def next_argument_or(default)
       next_argument || default
     end
     
-    #return the next argument or raise ArgumentError with the given message
+    # return the next argument or raise exception with the given message
+    #
+    # The exception does not need to be handled because {Optplus::Parser.run!}
+    # will rescue it and display an error message.
     #
     # @param [String] msg to attach to exception
+    # @return [String] being the next argument
+    # @raise [Optplus::ParseError] if there is no argument
     def next_argument_or_error(msg)
       next_argument || raise(Optplus::ParseError, msg)
     end
     
     # return all of the remaining args, or an empty array
+    #
+    # This clears all remaining arguments so that subsequent
+    # calls e.g. to {Optplus::Parser#next_argument} return nil
+    #
+    # @return [Array] of arguments
     def all_arguments
       args = @_args.dup
       @_args = Array.new
@@ -260,44 +327,63 @@ module Optplus
     end
     
     
+    # @!visibility private
     def _get_help
       puts @_optparse.help
       puts ""
     end
     
+    # @!visibility private
     def _needs_help?
       @_help
     end
     
     # set the value of the given option, which defaults to true
+    #
+    # If a value is omitted then the option is set to be true
+    #
+    # @param [Symbol] key to use in getting the option
+    # @param [Object] value to set the option to
     def set_option(key, value=true)
       @options[key] = value
     end
     
     # get the value of the option
+    #
+    # Returns nil if there is no option with the given key
+    #
+    # @param [Symbol] key to the option to get
+    # @return [Object] or nil if no option set
     def get_option(key)
       @options[key]
     end
     
     # check if the option has been set
+    #
+    # @param [Symbol] key for the option to test
+    # @return [Boolean] true if option has been set
     def option?(key)
       @options.has_key?(key)
     end
     
     # call this to exit the script in case of an error
     # and ensure any tidying up has been done
-    def exit_on_error
-      raise ExitOnError
+    def exit_on_error(msg='')
+      raise Optplus::ExitOnError, msg
     end
     
+    # @!visibility private
     def _help_me
+      # is there an action on the line?
       if _args.length > 0 then
+        # yes, but is it legit?
         action = next_argument
         alup = @klass._actions.abbrev(action)
         action = alup[action].to_sym if alup.has_key?(action)
         if @klass._help.has_key?(action) then
           # valid help so use it
           if @klass._help[action].kind_of?(Array) then
+            # its an array of strings, so print them
             puts "Help for #{action}"
             puts ""
             @klass._help[action].each do |aline|
@@ -305,19 +391,20 @@ module Optplus
             end
             puts ""
           else
-            @klass._help[action]._help_me
+            # its a nested parser so call its _help_me method
+            nested_klass = @klass._help[action]
+            nested_parser = nested_klass.new(self)
+            nested_parser._help_me
           end
           return
-        elsif @klass._actions.include?(action)
+        elsif @klass._actions.include?(action.to_s)
+          # valid action but no help
           puts "Sorry, there is no specific help for action: #{action}".yellow
           puts ""
-          _get_help
-          return
         else
+          # invalid action
           puts "Sorry, but I do not understand the action: #{action}".red.bold
           puts ""
-          _get_help
-          return
         end
       end
       _get_help

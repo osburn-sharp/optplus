@@ -2,6 +2,10 @@
 # @title Change History
 
 == History
+[optplus-0.0.8 13-Sep-2013]
+
+  Release Candidate with nesting etc.
+
 [optplus-0.0.7 11-Sep-2013]
 
   Add flag to actions that have their own help

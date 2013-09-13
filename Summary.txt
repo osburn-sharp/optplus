@@ -1,1 +1,1 @@
-A simple thor-like wrapper to Optparser
+A simple wrapper class to make optparser-based scripts easy to write.
