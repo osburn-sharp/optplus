@@ -77,7 +77,7 @@ module Optplus
       @klass = self.class
       @_parent = parent || @klass._parent
       self.before_all if self.respond_to?(:before_all)
-      self.before_actions if self.respond_to?(:before_actions)
+      #self.before_actions if self.respond_to?(:before_actions)
     end
     
     # @!visibility private

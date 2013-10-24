@@ -2,6 +2,10 @@
 # @title Change History
 
 == History
+[optplus-0.0.9 24-Oct-2013]
+
+  Drop call to before_all in nested - should be called anyway by run!
+
 [optplus-0.0.8 13-Sep-2013]
 
   Release Candidate with nesting etc.
