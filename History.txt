@@ -2,6 +2,10 @@
 # @title Change History
 
 == History
+[optplus-0.0.10 24-Oct-2013]
+
+  Add empty help hash if no help defined when calling run!
+
 [optplus-0.0.9 24-Oct-2013]
 
   Drop call to before_all in nested - should be called anyway by run!

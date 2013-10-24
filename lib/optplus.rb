@@ -97,6 +97,7 @@ module Optplus
       def run!
         
         @_parent ||= nil
+        @_help ||= Hash.new
         
         begin
           me = self.new
