@@ -137,7 +137,7 @@ module Optplus
       puts ""
       flags = 0
       self.class._descriptions.each_pair do |action, description|
-        flag = @klass._help.has_key?(action.to_sym) ? '(-h)' : ''
+        flag = @klass._help && @klass._help.has_key?(action.to_sym) ? '(-h)' : ''
         flags += 1 unless flag == ''
         puts "  #{action} - #{description} #{flag}"
       end

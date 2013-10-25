@@ -2,6 +2,10 @@
 # @title Change History
 
 == History
+[optplus-0.0.12 25-Oct-2013]
+
+  Test for @@_help before assuming it exists in nested parser (140)
+
 [optplus-0.0.11 25-Oct-2013]
 
   Add IO convenience methods for displyaing output and getting responses
