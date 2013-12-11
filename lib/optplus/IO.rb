@@ -21,19 +21,19 @@ module Optplus
     Answers = Hash.new(false).merge({:no=>'n', :yes=>'y', :skip=>'s', :diff=>'d', :list=>'l'})
     
     def say(txt)
-      puts txt
+      $stderr.puts txt
     end
     
     def say_ok(txt)
-      puts txt.green
+      $stderr.puts txt.green
     end
     
     def warn(txt)
-      puts txt.yellow
+      $stderr.puts txt.yellow
     end
     
     def alert(txt)
-      puts txt.red.bold
+      $stderr.puts txt.red.bold
     end
     
     def ask(question, default=:no, answers=nil)
@@ -42,11 +42,11 @@ module Optplus
       def_key = answers[default]
       answer_options = answers.values.collect {|k| k == def_key ? k.upcase : k}.join('')
       loop do
-        print "#{question}(#{answer_options})? "
+        $stderr.print "#{question}(#{answer_options})? "
         response = $stdin.gets[0,1].downcase
         if response == '?' then
           answers.each_pair do |key, val|
-            puts "#{key}"
+            $stderr.puts "#{key}"
           end
           next
         end

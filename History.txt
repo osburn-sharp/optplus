@@ -2,6 +2,10 @@
 # @title Change History
 
 == History
+[optplus-0.0.13 11-Dec-2013]
+
+  Set IO to output on $stderr - testing in RL to see if this is workable
+
 [optplus-0.0.12 25-Oct-2013]
 
   Test for @@_help before assuming it exists in nested parser (140)
