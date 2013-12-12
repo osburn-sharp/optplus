@@ -2,6 +2,10 @@
 # @title Change History
 
 == History
+[optplus-0.0.15 12-Dec-2013]
+
+  Clean up spacing etc
+
 [optplus-0.0.14 12-Dec-2013]
 
   Added in a sort of man facility with --man to print out all the help in one go

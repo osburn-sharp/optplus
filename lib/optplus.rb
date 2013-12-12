@@ -427,7 +427,8 @@ module Optplus
     
     # output all the help in one go!
     def man
-      puts "Hey Man"
+      puts "Help Manual for #{@program_name}"
+      puts ""
       _get_help
       @klass._help.each_pair do |action, help|
         puts "Action: #{action}:"
@@ -448,7 +449,7 @@ module Optplus
             subhelp.each do |hline|
               puts "    " + hline
             end
-            
+            puts ""
           end
         end
         puts " "
