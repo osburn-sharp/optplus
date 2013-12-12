@@ -127,30 +127,38 @@ module Optplus
     end
     
     # @!visibility private
-    def _get_help
+    def _get_help(indent=0)
+      helps = []
+      prefix = " " * indent
+      
       prog_name = File.basename($0, File.extname($0))
-      puts "Usage: #{prog_name} #{self.class._banner}"
-      puts ""
+      helps << "Usage: #{prog_name} #{self.class._banner}"
+      helps << ""
       self.class._description.each do |line|
-        puts line
+        helps << line
       end
-      puts ""
+      helps << ""
       flags = 0
       self.class._descriptions.each_pair do |action, description|
         flag = @klass._help && @klass._help.has_key?(action.to_sym) ? '(-h)' : ''
         flags += 1 unless flag == ''
-        puts "  #{action} - #{description} #{flag}"
+        helps << "  #{action} - #{description} #{flag}"
       end
           
       if flags > 0 then
-        puts ""
-        puts "  (-h indicates actions with additional help)"
-        puts ""
+        helps << ""
+        helps << "  (-h indicates actions with additional help)"
+        helps << ""
       end
             
-      puts ""
-      puts "For full details of options etc:"
-      puts "  #{prog_name} -h"
+      helps << ""
+      helps << "For full details of options etc:"
+      helps << "  #{prog_name} -h"
+      
+      helps.each do |hline|
+        puts prefix + hline
+      end
+      
     end
 
     

@@ -202,6 +202,7 @@ module Optplus
       @klass = self.class
       @klass._help ||= Hash.new
       @_help = false
+      @_man = false
       @options = Hash.new
       
       self.before_all if self.respond_to?(:before_all)
@@ -244,6 +245,11 @@ module Optplus
           options(opts) if self.respond_to?(:options)
           opts.on_tail('-h', '--help', help_string) do
             @_help = true
+          end
+          
+          opts.on_tail('--man', 'output man-like help') do
+            @_help = true
+            @_man = true
           end
           
         end
@@ -329,8 +335,11 @@ module Optplus
     
     
     # @!visibility private
-    def _get_help
-      puts @_optparse.help
+    def _get_help(indent=0)
+      prefix = " " * indent
+      @_optparse.help.split("/n").each do |line|
+        puts prefix + line
+      end
       puts ""
     end
     
@@ -375,6 +384,10 @@ module Optplus
     
     # @!visibility private
     def _help_me
+      if @_man then
+        self.man
+        return
+      end
       # is there an action on the line?
       if _args.length > 0 then
         # yes, but is it legit?
@@ -411,6 +424,37 @@ module Optplus
       _get_help
       
     end
+    
+    # output all the help in one go!
+    def man
+      puts "Hey Man"
+      _get_help
+      @klass._help.each_pair do |action, help|
+        puts "Action: #{action}:"
+        puts ""
+        if help.kind_of?(Array) then
+          help.each do |hline|
+            puts "  " + hline
+          end
+        else
+
+          np = help.new(self)
+          np._get_help(2)
+          puts ""
+          
+          help._help.each_pair do |subaction, subhelp|
+            puts "  Subaction: #{subaction}"
+            puts ""
+            subhelp.each do |hline|
+              puts "    " + hline
+            end
+            
+          end
+        end
+        puts " "
+      end
+      puts ""
+    end #man
     
   end
 

@@ -2,6 +2,10 @@
 # @title Change History
 
 == History
+[optplus-0.0.14 12-Dec-2013]
+
+  Added in a sort of man facility with --man to print out all the help in one go
+
 [optplus-0.0.13 11-Dec-2013]
 
   Set IO to output on $stderr - testing in RL to see if this is workable
