@@ -269,9 +269,6 @@ module Optplus
     # provides convenient access to the name of the program
     attr_reader :program_name
     
-    # provides access to all the options set
-    attr_reader :options
-    
     # add optparse option for debug mode
     #
     # @param [Optparse] opts being the optparse instance
@@ -369,6 +366,10 @@ module Optplus
     # @return [Object] or nil if no option set
     def get_option(key)
       @options[key]
+    end
+    
+    def all_options
+      @options.dup
     end
     
     # check if the option has been set

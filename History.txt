@@ -2,6 +2,10 @@
 # @title Change History
 
 == History
+[optplus-0.0.17 28-Nov-2014]
+
+  Improve access to options hash and avoid clash with options method!
+
 [optplus-0.0.16 28-Nov-2014]
 
   Add instance attribute to read options hash
