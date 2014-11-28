@@ -1,5 +1,5 @@
 == Outstanding Bugs and Change Requests for Optplus
 
-[30-Aug-2013]
+[06-Nov-2014]
 
-  * Need to implement the project!
+  * Fails in nest_parser if there is no help defined in main class.

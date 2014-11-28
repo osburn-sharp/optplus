@@ -269,6 +269,9 @@ module Optplus
     # provides convenient access to the name of the program
     attr_reader :program_name
     
+    # provides access to all the options set
+    attr_reader :options
+    
     # add optparse option for debug mode
     #
     # @param [Optparse] opts being the optparse instance
@@ -431,7 +434,7 @@ module Optplus
       puts ""
       _get_help
       @klass._help.each_pair do |action, help|
-        puts "Action: #{action}:"
+        puts "Action: #{action}"
         puts ""
         if help.kind_of?(Array) then
           help.each do |hline|

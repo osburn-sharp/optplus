@@ -1,13 +1,13 @@
 # Created by Jevoom
 #
-# 12-Dec-2013
-#   Clean up spacing etc
+# 28-Nov-2014
+#   Add instance attribute to read options hash
 
 module Optplus
-  # version set to 0.0.15
-  Version = '0.0.15'
-  # date set to 12-Dec-2013
-  Version_Date = '12-Dec-2013'
-  #ident string set to: optplus-0.0.15 12-Dec-2013
-  Ident = 'optplus-0.0.15 12-Dec-2013'
+  # version set to 0.0.16
+  Version = '0.0.16'
+  # date set to 28-Nov-2014
+  Version_Date = '28-Nov-2014'
+  #ident string set to: optplus-0.0.16 28-Nov-2014
+  Ident = 'optplus-0.0.16 28-Nov-2014'
 end

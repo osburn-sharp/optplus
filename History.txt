@@ -2,6 +2,10 @@
 # @title Change History
 
 == History
+[optplus-0.0.16 28-Nov-2014]
+
+  Add instance attribute to read options hash
+
 [optplus-0.0.15 12-Dec-2013]
 
   Clean up spacing etc

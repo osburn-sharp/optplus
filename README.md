@@ -49,16 +49,17 @@ Here is a simple example:
       end
       
       describe :show, 'show all of the items that match the string given'
+      
+      help :show, "A more details description of the show action",
+        "that can again spread over multiple lines",
+        "and is displayed when the user types mycli show -h"
+        
       def show
         matches = next_argument_or_error('You must provide a string to match')
         
         # do the stuff
         
       end
-      help :show, "A more details description of the show action",
-        "that can again spread over multiple lines",
-        "and is displayed when the user types mycli show -h"
-        
     end
     
     Mycli.run! # don't forget!
@@ -104,10 +105,10 @@ Using Optplus involves the following:
   
 > **describe** -- links an action (as a symbol) to a one line description.
 
-> **action_ method** -- for the action itself, having the same name as the symbol above
-
 > **help** - links the action to multi-line help text that will be displayed when
   the --help option is used with the action
+
+> **action_ method** -- for the action itself, having the same name as the symbol above
 
 * And finally, if you need to tidy up afterwards you can define an after_actions
   method.
@@ -142,6 +143,10 @@ simply by calling helper methods:
 You can change the short-form switch by adding a different one:
 
     debug_option(opts, '-d') 
+    
+Finally, there is a "--man" switch that generates a help manual (a bit like man)
+by concatenating all of the help definitions into a single output. Particularly
+useful if you have a complex utility with nested actions (see below).
 
 ### Options helpers
 
@@ -167,6 +172,11 @@ For example:
     end
     
 You can always define instance variables if you prefer.
+
+### IO
+
+Optplus uses a module of {Optplus::IO IO} helpers to provide coloured output and to ease asking
+simple questions. Note all of the outputs are to $stderr rather than $stdout.
 
 ### Handling Errors
 
